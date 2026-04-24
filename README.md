@@ -38,10 +38,9 @@ This project is structured to be easy to understand, extend, and maintain.
 
 Your actual structure may differ, but a common layout is:
 
-```text
 flask_app/
 ├── app/
-│   ├── __init__.py          # App factory, extensions init
+│   ├── __init__.py          # App ## Featuresfactory, extensions init
 │   ├── [config.py](VALID_FILE)            # Configuration classes
 │   ├── models.py            # SQLAlchemy models
 │   ├── resources/           # API endpoints (Flask-RESTful)
@@ -59,25 +58,33 @@ flask_app/
 ├── [README.md](VALID_FILE)
 └── wsgi.py or [run.py](VALID_FILE)        # Entry point
 
-##Getting Started
+## Getting Started
+
 1. Prerequisites
 Python 3.10+
 A database (e.g., PostgreSQL, MySQL, or SQLite for local development)
 virtualenv or another virtual environment tool is recommended
 
+
 2. Setup & Installation
-# Clone the repository
+
+## Clone the repository
+
 git clone <YOUR_REPO_URL> flask-app
 cd flask-app
 
-# Create and activate a virtual environment
+## Create and activate a virtual environment
 python -m venv venv
-# Windows
+
+## Windows
 venv\Scripts\activate
-# macOS / Linux
+
+## macOS / Linux
+
 source venv/bin/activate
 
-# Install dependencies
+## Install dependencies
+
 pip install -r [requirements.txt](VALID_FILE)
 If you don’t have a requirements.txt yet, you can create one with:
 
@@ -123,10 +130,11 @@ flask db migrate -m "Describe your changes"
 flask db upgrade
 
 5. Running the App
-# Using flask CLI
+
+## Using flask CLI
 flask run
 
-# Or, if you have [run.py](VALID_FILE) / wsgi.py
+## Or, if you have [run.py](VALID_FILE) / wsgi.py
 python [run.py](VALID_FILE)
 By default, the app will be available at:
 
@@ -134,7 +142,8 @@ http://127.0.0.1:5000
 API Overview (Example)
 Your actual endpoints may differ; below is a common pattern.
 
-##Authentication
+## Authentication
+
 Register
 POST /auth/register
 Body (JSON):
@@ -161,7 +170,8 @@ Response (200):
 }
 Use the access_token in the Authorization header:
 
-##Authorization: Bearer JWT_ACCESS_TOKEN
+## Authorization: Bearer JWT_ACCESS_TOKEN
+
 Protected Example Endpoint
 GET /users/me
 
@@ -174,7 +184,8 @@ Response (200):
   "email": "user@example.com"
 }
 
-##Authentication & Security
+## Authentication & Security
+
 Passwords are hashed with Flask-Bcrypt
 Authentication is handled via Flask-JWT-Extended
 Typical usage in code (simplified):
@@ -186,21 +197,26 @@ from flask_jwt_extended import (
 bcrypt = Bcrypt()
 jwt = JWTManager()
 
-# Hashing a password
+## Hashing a password
+
 hashed = bcrypt.generate_password_hash("password").decode("utf-8")
 
-# Checking a password
+## Checking a password
+
 bcrypt.check_password_hash(hashed, "password")
 
-# Creating a token
+## Creating a token
+
 access_token = create_access_token(identity=user.id)
 
-# Protecting a route
-@jwt_required()
+## Protecting a route
+
+ @jwt_required()
 def get_current_user():
     user_id = get_jwt_identity()
 
-##Validation with Marshmallow
+## Validation with Marshmallow
+
 Define schemas to validate input and serialize output:
 
 from marshmallow import Schema, fields
@@ -216,7 +232,8 @@ user_schema = UserSchema()
 data = user_schema.load(request.get_json())  # validate input
 result = user_schema.dump(user)              # serialize output
 
-##API Documentation with Flasgger
+## API Documentation with Flasgger
+
 If enabled, Swagger UI is often available at:
 
 http://127.0.0.1:5000/apidocs
@@ -238,7 +255,9 @@ def ping():
     """
     return {"message": "pong"}
 
+
 ##Development Workflow
+
 Create/modify models in models.py.
 Generate and apply migrations:
 flask db migrate -m "Describe changes"
@@ -249,6 +268,7 @@ Update or add tests in tests/.
 Run tests and start the server.
 
 ##Example Minimal App Factory
+
 A typical app/__init__.py looks like:
 
 from flask import Flask
@@ -276,14 +296,17 @@ def create_app(config_object="app.config.Config"):
     # register_routes(app)
 
     return app
-##Testing
+
+## Testing
+
 If you have tests:
 
 pytest          # or
 python -m unittest
 (Adjust based on your chosen testing framework.)
 
-##Deployment Notes
+## Deployment Notes
+
 Use a production-ready WSGI server (e.g., gunicorn or uWSGI) in front of the Flask app.
 Configure environment variables for:
 FLASK_ENV=production
@@ -301,16 +324,21 @@ Push the branch:
 git push origin feature/my-feature
 Open a Pull Request.
 
-##License
+## License
+
 Specify your license here (e.g., MIT, Apache 2.0).
 
 MIT License
 ...
 
-##Contact
-Add your contact details or team info here:
+## Contact
 
-Maintainer: Your Name
-Email: your.email@example.com
-Issues: Open a GitHub issue in this repository
+Add your contact details or team info here:+25416657084
+
+Maintainer: Group 9 Project members
+
+
+Email: brightmahonga7@gmail.com
+
+Issues: Open a GitHub issue in this repository https://github.com/aminSHARIFF/flask-app
 flask-app
