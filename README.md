@@ -1,344 +1,462 @@
-# # Flask App
+# Flask Inventory Management System
 
-A simple, modular REST API built with Flask, SQLAlchemy, and JWT-based authentication.  
-This project is structured to be easy to understand, extend, and maintain.
-
-> Note: This README is a template based on the project’s dependencies.  
-> If your codebase differs, adjust the examples and sections accordingly.
+A modular REST API with a web frontend built with Flask, SQLAlchemy, and JWT authentication.  
+Supports product management, stock tracking, inventory transactions, and role-based access control.
 
 ---
 
 ## Features
 
-- RESTful API with Flask and Flask-RESTful
-- SQLAlchemy ORM for database access
-- Alembic & Flask-Migrate for database migrations
-- JWT-based authentication and authorization (Flask-JWT-Extended)
+- JWT-based authentication (register, login, protected routes)
+- Role-based access control (`admin` vs `user`)
+- Full product CRUD with pagination and stock filtering
+- Inventory stock-in / stock-out with transaction history
 - Password hashing with Flask-Bcrypt
-- Request/response validation with Marshmallow
-- Interactive API documentation with Flasgger (Swagger UI)
-- Environment-based configuration
+- Request validation with Marshmallow
+- Interactive API docs via Swagger UI (Flasgger)
+- Web UI (login, register, dashboard)
+- Auto database creation and seeding on first run
+- Environment-based configuration via `.env`
 
 ---
 
 ## Tech Stack
 
-- **Language:** Python 3.10+ (recommended)
-- **Web Framework:** Flask
-- **Database Layer:** SQLAlchemy, Flask-SQLAlchemy
-- **Migrations:** Flask-Migrate, Alembic
-- **Auth:** Flask-JWT-Extended, PyJWT
-- **Security:** Flask-Bcrypt
-- **Validation:** Marshmallow
-- **Docs:** Flasgger
+| Layer | Technology |
+|---|---|
+| Language | Python 3.10+ |
+| Framework | Flask 3.1 |
+| Database ORM | SQLAlchemy, Flask-SQLAlchemy |
+| Migrations | Flask-Migrate, Alembic |
+| Authentication | Flask-JWT-Extended, PyJWT |
+| Password Hashing | Flask-Bcrypt |
+| Validation | Marshmallow |
+| API Docs | Flasgger (Swagger UI) |
+| Config | python-dotenv |
 
 ---
 
-## Project Structure (Example)
+## Project Structure
 
-Your actual structure may differ, but a common layout is:
-
-flask_app/
+```
+flask-app/
 ├── app/
-│   ├── __init__.py          # App ## Featuresfactory, extensions init
-│   ├── [config.py](VALID_FILE)            # Configuration classes
-│   ├── models.py            # SQLAlchemy models
-│   ├── resources/           # API endpoints (Flask-RESTful)
-│   │   ├── __init__.py
-│   │   └── user.py
-│   ├── schemas/             # Marshmallow schemas
-│   │   ├── __init__.py
-│   │   └── user.py
-│   ├── routes.py            # Blueprints / route registration
-│   └── docs/                # Flasgger specs, if any
-├── migrations/              # Alembic migration scripts
-├── tests/                   # Unit / integration tests
-├── .env                     # Local environment variables (not committed)
-├── [requirements.txt](VALID_FILE)         # Python dependencies
-├── [README.md](VALID_FILE)
-└── wsgi.py or [run.py](VALID_FILE)        # Entry point
+│   ├── __init__.py          # App factory, extensions init
+│   ├── models/
+│   │   ├── base.py          # BaseModel with id and created_at
+│   │   ├── user.py          # User model
+│   │   ├── products.py      # Product model
+│   │   └── inventory.py     # InventoryTransaction model
+│   ├── routes/
+│   │   ├── auth.py          # /auth endpoints
+│   │   ├── products.py      # /products endpoints
+│   │   └── inventory.py     # /inventory endpoints
+│   ├── schemas/
+│   │   └── user_schema.py   # Marshmallow schemas
+│   ├── utils/
+│   │   └── decorators.py    # role_required decorator
+│   └── templates/
+│       ├── login.html
+│       ├── register.html
+│       └── dashboard.html
+├── config.py                # Config class (reads from .env)
+├── run.py                   # Entry point — starts app and seeds DB
+├── seed.py                  # Standalone DB reset + seed script
+├── cleanup.py               # Removes pycache, .pyc, .sqlite3 files
+├── requirements.txt
+└── .env                     # Environment variables (not committed)
+```
+
+---
 
 ## Getting Started
 
-1. Prerequisites
-Python 3.10+
-A database (e.g., PostgreSQL, MySQL, or SQLite for local development)
-virtualenv or another virtual environment tool is recommended
+### 1. Prerequisites
 
+- Python 3.10+
+- `python3-venv` or equivalent
 
-2. Setup & Installation
+### 2. Clone the repository
 
-## Clone the repository
-
-git clone <YOUR_REPO_URL> flask-app
+```bash
+git clone https://github.com/aminSHARIFF/flask-app
 cd flask-app
+```
 
-## Create and activate a virtual environment
-python -m venv venv
+### 3. Create and activate a virtual environment
 
-## Windows
-venv\Scripts\activate
+```bash
+python3 -m venv venv
+source venv/bin/activate        # macOS / Linux
+venv\Scripts\activate           # Windows
+```
 
-## macOS / Linux
+### 4. Install dependencies
 
-source venv/bin/activate
+```bash
+pip install -r requirements.txt
+```
 
-## Install dependencies
+### 5. Configure environment variables
 
-pip install -r [requirements.txt](VALID_FILE)
-If you don’t have a requirements.txt yet, you can create one with:
+Create a `.env` file in the project root:
 
-Flask==3.1.3
-Flask-SQLAlchemy==3.1.1
-Flask-Migrate==4.1.0
-Flask-JWT-Extended==4.7.1
-Flask-Bcrypt==1.0.1
-Flask-RESTful==0.3.10
-Flasgger==0.9.7.1
+```env
+FLASK_APP=run.py
+FLASK_ENV=development
+SECRET_KEY=your-secret-key-minimum-32-characters
+JWT_SECRET_KEY=your-jwt-secret-key-minimum-32-characters
+SQLALCHEMY_DATABASE_URI=sqlite:///db.sqlite3
+```
 
-SQLAlchemy==2.0.49
-alembic==1.18.4
-greenlet==3.4.0
+> For production, replace `SQLALCHEMY_DATABASE_URI` with a PostgreSQL or MySQL URI:
+> ```
+> SQLALCHEMY_DATABASE_URI=postgresql+psycopg2://user:password@localhost:5432/dbname
+> ```
 
-marshmallow==4.3.0
-PyJWT==2.12.1
+### 6. Run the app
 
-3. Environment Variables
-Create a .env file in the project root (or configure environment variables in your deployment environment).
-Typical variables:
+```bash
+python run.py
+```
 
-FLASK_APP=wsgi.py              # or run.py / your app entry point
-FLASK_ENV=development          # or production
-SECRET_KEY=your-secret-key
-JWT_SECRET_KEY=your-jwt-secret-key
+On first run, this automatically:
+- Creates all database tables
+- Seeds two default users and three sample products
 
-SQLALCHEMY_DATABASE_URI=sqlite:///app.db
-SQLALCHEMY_TRACK_MODIFICATIONS=False
-Adjust SQLALCHEMY_DATABASE_URI to use PostgreSQL/MySQL in production, e.g.:
+The app will be available at **http://127.0.0.1:5001**
 
-SQLALCHEMY_DATABASE_URI=postgresql+psycopg2://user:password@localhost:5432/dbname
+---
 
-4. Database Setup & Migrations
-Initialize the migration directory if it doesn’t exist:
+## Default Credentials
 
-flask db init       # first time only
-flask db migrate -m "Initial migration"
+| Role | Email | Password | Access |
+|---|---|---|---|
+| Admin | `admin@test.com` | `password` | Full access |
+| User | `user@test.com` | `password` | View only |
+
+---
+
+## Web UI
+
+| URL | Page |
+|---|---|
+| `http://127.0.0.1:5001/login` | Login |
+| `http://127.0.0.1:5001/register` | Register |
+| `http://127.0.0.1:5001/dashboard` | Dashboard (products + inventory controls) |
+| `http://127.0.0.1:5001/apidocs` | Swagger API documentation |
+
+---
+
+## API Reference
+
+All JSON responses follow this structure:
+```json
+{ "status": "success" | "error", "data": {}, "message": "" }
+```
+
+All protected routes require the header:
+```
+Authorization: Bearer <access_token>
+```
+
+---
+
+### Auth — `/auth`
+
+#### `POST /auth/register`
+Register a new user.
+
+**Body:**
+```json
+{
+  "username": "john",
+  "email": "john@example.com",
+  "password": "securepassword"
+}
+```
+
+**Validation:**
+- `username`: 3–80 characters, must be unique
+- `email`: valid email format, must be unique
+- `password`: minimum 6 characters
+
+**Response `201`:**
+```json
+{
+  "status": "success",
+  "message": "account created",
+  "data": { "id": 1, "username": "john", "email": "john@example.com", "role": "user" }
+}
+```
+
+---
+
+#### `POST /auth/login`
+Login and receive a JWT token.
+
+**Body:**
+```json
+{
+  "email": "john@example.com",
+  "password": "securepassword"
+}
+```
+
+**Response `200`:**
+```json
+{
+  "status": "success",
+  "data": {
+    "token": "<JWT_ACCESS_TOKEN>",
+    "user": { "id": 1, "username": "john", "email": "john@example.com", "role": "user" }
+  }
+}
+```
+
+---
+
+#### `GET /auth/me` 🔒
+Returns the currently authenticated user.
+
+**Response `200`:**
+```json
+{
+  "status": "success",
+  "data": { "id": 1, "username": "john", "email": "john@example.com", "role": "user" }
+}
+```
+
+---
+
+### Products — `/products`
+
+#### `GET /products/`
+Returns a paginated list of products. Public.
+
+**Query params:**
+
+| Param | Type | Default | Description |
+|---|---|---|---|
+| `page` | int | 1 | Page number |
+| `limit` | int | 5 | Items per page |
+| `min_stock` | int | — | Filter by minimum stock |
+| `max_stock` | int | — | Filter by maximum stock |
+
+**Response `200`:**
+```json
+{
+  "status": "success",
+  "data": [
+    { "id": 1, "name": "Laptop", "price": 50000.0, "stock": 10 }
+  ],
+  "meta": { "page": 1, "limit": 5, "total": 3, "pages": 1 }
+}
+```
+
+---
+
+#### `GET /products/<id>`
+Get a single product by ID. Public.
+
+**Response `200`:**
+```json
+{
+  "status": "success",
+  "data": { "id": 1, "name": "Laptop", "price": 50000.0, "stock": 10 }
+}
+```
+
+---
+
+#### `POST /products/` 🔒 Admin only
+Create a new product.
+
+**Body:**
+```json
+{
+  "name": "Monitor",
+  "price": 15000,
+  "stock": 5
+}
+```
+
+**Response `201`:**
+```json
+{
+  "status": "success",
+  "message": "Product created successfully",
+  "data": { "id": 4, "name": "Monitor", "price": 15000.0, "stock": 5 }
+}
+```
+
+---
+
+#### `PATCH /products/<id>` 🔒 Admin only
+Update one or more fields of a product.
+
+**Body (all fields optional):**
+```json
+{
+  "name": "Gaming Monitor",
+  "price": 18000,
+  "stock": 8
+}
+```
+
+**Response `200`:**
+```json
+{
+  "status": "success",
+  "message": "Product updated successfully",
+  "data": { "id": 4, "name": "Gaming Monitor", "price": 18000.0, "stock": 8 }
+}
+```
+
+---
+
+#### `DELETE /products/<id>` 🔒 Admin only
+Delete a product and all its inventory transactions.
+
+**Response `200`:**
+```json
+{
+  "status": "success",
+  "message": "Product deleted successfully"
+}
+```
+
+---
+
+### Inventory — `/inventory`
+
+#### `GET /inventory/`
+Returns current stock levels for all products. Public.
+
+**Response `200`:**
+```json
+{
+  "status": "success",
+  "data": [
+    { "product_id": 1, "name": "Laptop", "stock": 10 }
+  ]
+}
+```
+
+---
+
+#### `POST /inventory/in/<product_id>` 🔒 Admin only
+Add stock to a product.
+
+**Body:**
+```json
+{ "quantity": 10 }
+```
+
+**Response `200`:**
+```json
+{
+  "status": "success",
+  "message": "Added 10 units to stock",
+  "data": { "product_id": 1, "name": "Laptop", "new_stock": 20 }
+}
+```
+
+---
+
+#### `POST /inventory/out/<product_id>` 🔒 Admin only
+Remove stock from a product.
+
+**Body:**
+```json
+{ "quantity": 3 }
+```
+
+**Response `200`:**
+```json
+{
+  "status": "success",
+  "message": "Removed 3 units from stock",
+  "data": { "product_id": 1, "name": "Laptop", "new_stock": 17 }
+}
+```
+
+> Returns `400` if quantity exceeds available stock.
+
+---
+
+#### `GET /inventory/transactions/<product_id>` 🔒
+Returns the full transaction history for a product.
+
+**Response `200`:**
+```json
+{
+  "status": "success",
+  "data": [
+    { "id": 1, "quantity": 10, "type": "IN", "created_at": "2026-05-12T12:00:00" },
+    { "id": 2, "quantity": 3, "type": "OUT", "created_at": "2026-05-12T13:00:00" }
+  ]
+}
+```
+
+---
+
+## Role Permissions Summary
+
+| Action | Admin | User |
+|---|---|---|
+| Register / Login | ✅ | ✅ |
+| View products | ✅ | ✅ |
+| View inventory | ✅ | ✅ |
+| Create product | ✅ | ❌ |
+| Update product | ✅ | ❌ |
+| Delete product | ✅ | ❌ |
+| Stock in / out | ✅ | ❌ |
+| View transactions | ✅ | ✅ |
+
+---
+
+## Database Management
+
+**Reset and re-seed the database:**
+```bash
+python seed.py
+```
+> This drops all tables, recreates them, and inserts fresh seed data.
+
+**Clean up cache and build files:**
+```bash
+python cleanup.py
+```
+
+**Run migrations (if using Flask-Migrate):**
+```bash
+flask db init        # first time only
+flask db migrate -m "describe change"
 flask db upgrade
-Whenever you change models:
+```
 
-flask db migrate -m "Describe your changes"
-flask db upgrade
+---
 
-5. Running the App
+## Common Errors
 
-## Using flask CLI
-flask run
+| Error | Cause | Fix |
+|---|---|---|
+| `Port 5000 is in use` | Another process on port 5000 | Run `flask run --port 5001` |
+| `externally-managed-environment` | No virtual environment active | Run `source venv/bin/activate` |
+| `401 Unauthorized` | Missing or expired token | Login again to get a new token |
+| `403 Forbidden` | Logged in as `user`, not `admin` | Use admin credentials |
 
-## Or, if you have [run.py](VALID_FILE) / wsgi.py
-python [run.py](VALID_FILE)
-By default, the app will be available at:
-
-http://127.0.0.1:5000
-API Overview (Example)
-Your actual endpoints may differ; below is a common pattern.
-
-## Authentication
-
-Register
-POST /auth/register
-Body (JSON):
-{
-  "email": "user@example.com",
-  "password": "yourpassword"
-}
-Response (201):
-{
-  "id": 1,
-  "email": "user@example.com"
-}
-Login
-POST /auth/login
-Body (JSON):
-{
-  "email": "user@example.com",
-  "password": "yourpassword"
-}
-Response (200):
-{
-  "access_token": "JWT_ACCESS_TOKEN",
-  "refresh_token": "JWT_REFRESH_TOKEN"
-}
-Use the access_token in the Authorization header:
-
-## Authorization: Bearer JWT_ACCESS_TOKEN
-
-Protected Example Endpoint
-GET /users/me
-
-Headers: Authorization: Bearer <access_token>
-
-Response (200):
-
-{
-  "id": 1,
-  "email": "user@example.com"
-}
-
-## Authentication & Security
-
-Passwords are hashed with Flask-Bcrypt
-Authentication is handled via Flask-JWT-Extended
-Typical usage in code (simplified):
-from flask_bcrypt import Bcrypt
-from flask_jwt_extended import (
-    JWTManager, create_access_token, jwt_required, get_jwt_identity
-)
-
-bcrypt = Bcrypt()
-jwt = JWTManager()
-
-## Hashing a password
-
-hashed = bcrypt.generate_password_hash("password").decode("utf-8")
-
-## Checking a password
-
-bcrypt.check_password_hash(hashed, "password")
-
-## Creating a token
-
-access_token = create_access_token(identity=user.id)
-
-## Protecting a route
-
- @jwt_required()
-def get_current_user():
-    user_id = get_jwt_identity()
-
-## Validation with Marshmallow
-
-Define schemas to validate input and serialize output:
-
-from marshmallow import Schema, fields
-
-class UserSchema(Schema):
-    id = fields.Int(dump_only=True)
-    email = fields.Email(required=True)
-    password = fields.String(load_only=True, required=True)
-Usage in views/resources:
-
-user_schema = UserSchema()
-
-data = user_schema.load(request.get_json())  # validate input
-result = user_schema.dump(user)              # serialize output
-
-## API Documentation with Flasgger
-
-If enabled, Swagger UI is often available at:
-
-http://127.0.0.1:5000/apidocs
-A simple example of using Flasgger:
-
-from flasgger import Swagger
-
-swagger = Swagger(app)
-Then document a view:
-
-@app.route("/ping")
-def ping():
-    """
-    "Ping endpoint"
-    ---
-    responses:
-      200:
-        description: "Pong response"
-    """
-    return {"message": "pong"}
-
-
-##Development Workflow
-
-Create/modify models in models.py.
-Generate and apply migrations:
-flask db migrate -m "Describe changes"
-flask db upgrade
-Add/modify resources (routes) in resources/.
-Add/update schemas in schemas/.
-Update or add tests in tests/.
-Run tests and start the server.
-
-##Example Minimal App Factory
-
-A typical app/__init__.py looks like:
-
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
-from flask_bcrypt import Bcrypt
-from flask_jwt_extended import JWTManager
-
-db = SQLAlchemy()
-migrate = Migrate()
-bcrypt = Bcrypt()
-jwt = JWTManager()
-
-def create_app(config_object="app.config.Config"):
-    app = Flask(__name__)
-    app.config.from_object(config_object)
-
-    db.init_app(app)
-    migrate.init_app(app, db)
-    bcrypt.init_app(app)
-    jwt.init_app(app)
-
-    # Register blueprints / routes here
-    # from app.routes import register_routes
-    # register_routes(app)
-
-    return app
-
-## Testing
-
-If you have tests:
-
-pytest          # or
-python -m unittest
-(Adjust based on your chosen testing framework.)
-
-## Deployment Notes
-
-Use a production-ready WSGI server (e.g., gunicorn or uWSGI) in front of the Flask app.
-Configure environment variables for:
-FLASK_ENV=production
-Strong SECRET_KEY and JWT_SECRET_KEY
-Production database URL
-Run database migrations during deployment:
-flask db upgrade
-Contributing
-Fork the repository.
-Create a feature branch:
-git checkout -b feature/my-feature
-Commit your changes:
-git commit -am "Add my feature"
-Push the branch:
-git push origin feature/my-feature
-Open a Pull Request.
+---
 
 ## License
 
-Specify your license here (e.g., MIT, Apache 2.0).
-
 MIT License
-...
 
-## Contact
+---
 
-Add your contact details or team info here:+25416657084
+## Maintainer
 
-Maintainer: Group 9 Project members
-
-
-Email: brightmahonga7@gmail.com
-
-Issues: Open a GitHub issue in this repository https://github.com/aminSHARIFF/flask-app
-flask-app
+**Group 9 Project**  
+Email: brightmahonga7@gmail.com  
+GitHub: https://github.com/aminSHARIFF/flask-app

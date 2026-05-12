@@ -14,12 +14,9 @@ migrate = Migrate()
 
 def create_app():
     app = Flask(__name__)
-    
-    swagger.init_app(app)
+    app.config.from_object('config.Config')
 
-    # basic config
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite3'
-    app.config['JWT_SECRET_KEY'] = 'myjwtkey123'
+    swagger.init_app(app)
 
     # connect extensions to the app
     db.init_app(app)
@@ -27,15 +24,12 @@ def create_app():
     bcrypt.init_app(app)
     migrate.init_app(app, db)
 
-    # register auth routes
+    # register blueprints
     from app.routes.auth import auth_bp
     app.register_blueprint(auth_bp, url_prefix='/auth')
-    
-    #
-    
+
     from app.routes.products import products_bp
     from app.routes.inventory import inventory_bp
-
     app.register_blueprint(products_bp, url_prefix='/products')
     app.register_blueprint(inventory_bp, url_prefix='/inventory')
 

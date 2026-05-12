@@ -185,7 +185,7 @@
 
   async function loadProducts() {
     try {
-      const res = await fetch('/products', {
+      const res = await fetch('/products/', {
         headers: { Authorization: `Bearer ${token}` }
       })
 
